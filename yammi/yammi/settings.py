@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
 from pathlib import Path
+import datetime
 import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -46,9 +47,20 @@ INSTALLED_APPS = [
 
 ##
 REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+      'rest_framework.permissions.AllowAny',
+    ),
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.TokenAuthentication',
+        'rest_framework_jwt.authentication.JSONWebTokenAuthentication'
     ]
+}
+
+JWT_AUTH = {
+    'JWT_ALLOW_REFRESH': True,
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(hours=168),
+    'JWT_VERIFY': True,
+    'JWT_AUTH_HEADER_PREFIX': 'FNY'
 }
 
 MIDDLEWARE = [
