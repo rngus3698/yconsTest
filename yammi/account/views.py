@@ -4,31 +4,14 @@ from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 
-from django.contrib.auth.models import User
-from .models import models
 from .serializers import *
 from .models import Profile
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 
-
-from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponseRedirect
 # Create your views here.
 
-
-##화면전화 예시
-# class signup(APIView):
-#     def post(self, request):
-#         userform = UserCreationForm(request.POST)
-#         if userform.is_valid():
-#             userform.save()
-#
-#             return HttpResponseRedirect(reversed("signup_ok"))
-#
-#     def get(self, request):
-#         userform = UserCreationForm()
-#         return render(request, "registration/signup.html", {"userform": userform})
 
 class SignupView(APIView):
     #회원전체 조회
