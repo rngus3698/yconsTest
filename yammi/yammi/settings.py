@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'account',
+    'yammiDeal',
 
     'rest_framework',
     'rest_framework.authtoken',
@@ -48,10 +49,12 @@ INSTALLED_APPS = [
 ##
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
-      'rest_framework.permissions.AllowAny',
+        # 'rest_framework.permissions.IsAuthenticated',
+        'rest_framework.permissions.AllowAny',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': [
         # 'rest_framework.authentication.TokenAuthentication',
+        # 'rest_framework.authentication.SessionAuthentication',
         'rest_framework_jwt.authentication.JSONWebTokenAuthentication'
     ]
 }
@@ -60,7 +63,7 @@ JWT_AUTH = {
     'JWT_ALLOW_REFRESH': True,
     'JWT_EXPIRATION_DELTA': datetime.timedelta(hours=168),
     'JWT_VERIFY': True,
-    'JWT_AUTH_HEADER_PREFIX': 'FNY'
+    'JWT_AUTH_HEADER_PREFIX': 'JWT',
 }
 
 MIDDLEWARE = [
@@ -111,7 +114,7 @@ WSGI_APPLICATION = 'yammi.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'yammi',
+        'NAME': 'yammiTest',
         'USER': 'sangwon',
         'PASSWORD': 'Tkddnjs@123',
         'HOST': 'localhost',

@@ -21,10 +21,6 @@ from rest_framework_jwt.views import obtain_jwt_token, refresh_jwt_token, verify
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('account/', include('account.urls')),
-    # path('api-token-auth/', views.obtain_auth_token),
-
-    # path('api-jwt-auth/', obtain_jwt_token),
-    # path('api-jwt-auth/refresh/', refresh_jwt_token),
-    # path('api-jwt-auth/verify/', verify_jwt_token),
+    path('deal/', include('yammiDeal.urls')),
 
 ]

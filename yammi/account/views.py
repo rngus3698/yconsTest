@@ -8,7 +8,9 @@ from django.contrib.auth.models import User
 from .models import models
 from .serializers import *
 from .models import Profile
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+
 
 from django.contrib.auth.forms import UserCreationForm
 from django.http import HttpResponseRedirect
@@ -39,7 +41,7 @@ class SignupView(APIView):
     def post(self, request):
         # profile = Profile.objects.get(userame=request.data['username'])  #username 중복체크
 
-        user = User.objects.create_user(username=request.data['username'], password=request.data["password"])
+        user = User.objects.create_user(username=request.data['id'], password=request.data["password"], first_name=request.data["username"])
         profile = models.Profile(user=user, money=500)
 
         user.save()
@@ -57,21 +59,27 @@ class LoginView(APIView):
         user = authenticate(username=request.data['username'], password=request.data['password'])
         if user is not None:
             token = Token.objects.get(user=user)
-            return Response({"Token": token.key})   #로그인 성공후 토큰을 가져온다.
+            return Response({"login": "로그인 성공"})   #로그인 성공후 토큰을 가져온다.
         else:
             return Response(status=401) #로그인 실패
 
 
-##토큰을 통해 정상적으로 데이터를 가져올 수 있는지 확인
+##토큰을 통해 정상적으로 데이터를 가져올 수 있는지 확인답
+##토큰을 통해 정상적으로 API요청이 가능한지 test
 class UserInfo(APIView):
 
-    ###UserInfo API는 로그인한 사용자에게만 접근이 허용된다.
+    ###UserInfo API는 로그인한 사용자에게만 접근이 허용된다. 유효하지 않으면 401에러 응
+    ###IsAuthenticated : 인증되지 않은 사용자에게 권한을 거부하고 인증된 사람만 허용한다.
+    ##ALLowAny : 누구나 가능
+    # permission_classes = [AllowAny]
     permission_classes = [IsAuthenticated]
+    #JWT 인증을 확인하기 위해 사용한다
+    authentication_classes = [JSONWebTokenAuthentication]
 
     def get(self, request, *args, **kwargs):
         username = request.query_params.get("username")
         query = User.objects.get(username=username)
 
-        serializer = UserSerializer(query, many=False)
+        serializer = UserProfileSerializer(query, many=False)
 
-        return Response(serializer.data)
+        return Response(serializer.data["profile"])

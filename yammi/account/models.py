@@ -12,6 +12,7 @@ class Profile(models.Model):
 
     class Meta:
         db_table = 'Profile'
+        app_label = 'account'
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
