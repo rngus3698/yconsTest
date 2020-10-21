@@ -38,28 +38,31 @@ class DealView(APIView):
         return Response(serializer.data)
 
     def post(self, request):
-
+        #보내는사람
         my_profile = Profile.objects.get(user_id=request.data["user_id"])
 
-        print(int(request.data["deal_money"]))
-        #주는사람 profile update
-        my_profile.money = my_profile.money - int(request.data["deal_money"])
-        if(my_profile.money < 0):   #주는 금액이 가지고있는 금액을 초과하면 return
-            return Response({"거래": "실패"})
+        if Profile.objects.filter(user_id=request.data["user_take"]).exists():
+            #보내는사람 profie update
+            my_profile.money = my_profile.money - int(request.data["deal_money"])
+            if(my_profile.money < 0):   #주는 금액이 가지고있는 금액을 초과하면 return
+                return Response({"거래": "잔액 부족"})
+            else:
+                my_profile.save()
+            #받는사람
+            take_profile = Profile.objects.get(user_id=request.data["user_take"])
+            take_profile.money = take_profile.money + int(request.data["deal_money"])
+            take_profile.save()
+
+            #Deal 테이블 insert
+            deal_obj = Deal.objects.create(user_take=request.data["user_take"],
+                                           deal_money=request.data["deal_money"], user_give=my_profile)
+
+            deal_obj.save()
+
+            return Response({"거래": "성공"})
+
         else:
-            my_profile.save()
-        #받는사람
-        take_profile = Profile.objects.get(user_id=request.data["user_profile_take"])
-        take_profile.money = take_profile.money + int(request.data["deal_money"])
-        take_profile.save()
-
-        #Deal 테이블 insert
-        deal_obj = Deal.objects.create(user_take=request.data["user_profile_take"],
-                                       deal_money=request.data["deal_money"], user_give=my_profile)
-
-        deal_obj.save()
-
-        return Response({"거래": "성공"})
+            return Response({"실패": "받는사람이 존재하지 않습니다."})
 
 
 class DetailDeal(APIView):
@@ -68,11 +71,10 @@ class DetailDeal(APIView):
     authentication_classes = [JSONWebTokenAuthentication]
     pagination_class = PageNumberPagination
 
-    def post(self, request):    #해당 유저의 송금, 입금 리스트 뽑
-        user_id = request.data["user_id"]
+    def get(self, request):    #해당 유저의 송금, 입금 리스트 뽑
+        user_id = request.query_params.get("user_id")
         queryset = Deal.objects.filter(user_give_id=user_id) | Deal.objects.filter(user_take=user_id)
         paginator = MyPageNumberPagination()
         response = paginator.generate_response(queryset, DealSerializer, request)
 
         return response
-

@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate
 
 from .serializers import *
@@ -14,6 +13,7 @@ from django.http import HttpResponseRedirect
 
 
 class SignupView(APIView):
+    permission_classes = [AllowAny]
     #회원전체 조회
     def get(self, format=None):
         profile = Profile.objects.all() #Profile객체의 전체를 뽑아온다
@@ -22,20 +22,21 @@ class SignupView(APIView):
 
     #회원가입
     def post(self, request):
-        # profile = Profile.objects.get(userame=request.data['username'])  #username 중복체크
 
-        user = User.objects.create_user(username=request.data['id'], password=request.data["password"], first_name=request.data["username"])
-        profile = models.Profile(user=user, money=500)
+        if User.objects.filter(username=request.data['id']).exists():
+            return Response({"회원가입": "아이디가 중복됩니다."})
+
+        user = User.objects.create_user(username=request.data['id'],
+                                        password=request.data["password"],
+                                        first_name=request.data["username"])
 
         user.save()
-        profile.save()
 
-        token = Token.objects.create(user=user)
-        print(token.key)
-        return Response({"Token": token})
+        return Response({"회원가입": "성공"})
 
 
 class LoginView(APIView):
+    permission_classes = [AllowAny]
     def post(self, request):
         #Authentication은 수신 요청을 요청한 사용자 또는 서명 된 토큰과 같은 식별 자격 증명 세트를 연결하는 메커니즘입니다.
         #그런 다음 권한과 정책은 이러한 자격 증명을 사용하여 요청을 허용해야 하는지 결정할 수 있습니다.

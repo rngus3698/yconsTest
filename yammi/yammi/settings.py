@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 # Application definition
 
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -44,10 +45,8 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'rest_framework.authtoken',
-    'drf_yasg',
 
 ]
-
 ##
 REST_FRAMEWORK = {
 
@@ -55,8 +54,7 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10,
 
     'DEFAULT_PERMISSION_CLASSES': (
-        # 'rest_framework.permissions.IsAuthenticated',
-        'rest_framework.permissions.AllowAny',
+        'rest_framework.permissions.IsAuthenticated',
     ),
     'DEFAULT_AUTHENTICATION_CLASSES': [
         # 'rest_framework.authentication.TokenAuthentication',
@@ -120,7 +118,7 @@ WSGI_APPLICATION = 'yammi.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'yammiTest',
+        'NAME': 'yammi',
         'USER': 'sangwon',
         'PASSWORD': 'Tkddnjs@123',
         'HOST': 'localhost',
