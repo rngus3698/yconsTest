@@ -71,4 +71,4 @@ class UserInfo(APIView):
 
         serializer = UserProfileSerializer(query, many=False)
 
-        return Response(serializer.data["profile"])
+        return Response(serializer.data["profile"]) ##
