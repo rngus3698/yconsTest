@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.renderers import TemplateHTMLRenderer
@@ -44,13 +45,26 @@ class LoginView(APIView):
     def post(self, request):
         #Authentication은 수신 요청을 요청한 사용자 또는 서명 된 토큰과 같은 식별 자격 증명 세트를 연결하는 메커니즘입니다.
         #그런 다음 권한과 정책은 이러한 자격 증명을 사용하여 요청을 허용해야 하는지 결정할 수 있습니다.
-        user = authenticate(username=request.data['id'], password=request.data['password'])
-        if user is not None:
-            token = Token.objects.get(user=user)
-            # return Response({"login": "로그인 성공"}, template_name='index.html')   #로그인 성공후 토큰을 가져온다.
-            return Response({'token': token.key, "login": "로그인 성공"})  # 로그인 성공후 토큰을 가져온다.
-        else:
-            return Response(status=401) #로그인 실패
+        try:    #id 값이 넘어왔는지 체크
+            username = request.data["id"]
+        except:
+            return Response({'STATUS': "ID_NOT_FOUND"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        try:    #password 값이 넘어왔는지 체크
+            password = request.data['password']
+        except:
+            return Response({'STATUS': "PASSWORD_NOT_FOUND"}, status=status.HTTP_401_UNAUTHORIZED)
+
+        try:    #넘어온 id와 매칭되는 값이 있는가??
+            User.objects.get(username=username)
+            user = authenticate(username=username, password=password)
+            if user is not None:
+                token = Token.objects.get(user=user)
+                return Response({'token': token.key, "login": "로그인 성공"}, status=status.HTTP_200_OK)  # 로그인 성공후 토큰을 가져온다.
+            else:
+                return Response({'STATUS': "PASSWORD NOT MATCH"}, status=status.HTTP_401_UNAUTHORIZED) #로그인 실패
+        except User.DoesNotExist:
+            return Response({'STATUS': "ID NOT MATCH"}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 ##토큰을 통해 정상적으로 데이터를 가져올 수 있는지 확인답
@@ -66,9 +80,15 @@ class UserInfo(APIView):
     authentication_classes = [JSONWebTokenAuthentication]
 
     def get(self, request, *args, **kwargs):
-        username = request.query_params.get("username")
-        query = User.objects.get(username=username)
+        try:
+            username = request.query_params.get("username")
+        except:
+            return Response({'STATUS': 'ID_NOT_FOUND'}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            query = User.objects.get(username=username)
 
-        serializer = UserProfileSerializer(query, many=False)
+            serializer = UserProfileSerializer(query, many=False)
 
-        return Response(serializer.data["profile"])
+            return Response(serializer.data["profile"])
+        except User.DoesNotExist:
+            return Response({'STATUS': 'ID NOT MATCH'}, status=status.HTTP_401_UNAUTHORIZED)
