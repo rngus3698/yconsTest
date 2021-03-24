@@ -18,6 +18,7 @@ from django.http import HttpResponseRedirect
 class SignupView(APIView):
     permission_classes = [AllowAny]
     #회원전체 조회
+    #test commit
     def get(self, format=None):
         profile = Profile.objects.all() #Profile객체의 전체를 뽑아온다
         serializer = ProfileSerializer(profile, many=True)  #뽑아온 Profile 객체를 Json 타입으로 변환
@@ -80,6 +81,7 @@ class UserInfo(APIView):
     authentication_classes = [JSONWebTokenAuthentication]
 
     def get(self, request, *args, **kwargs):
+<<<<<<< HEAD
         try:
             username = request.query_params.get("username")
         except:
@@ -92,3 +94,11 @@ class UserInfo(APIView):
             return Response(serializer.data["profile"])
         except User.DoesNotExist:
             return Response({'STATUS': 'ID NOT MATCH'}, status=status.HTTP_401_UNAUTHORIZED)
+=======
+        username = request.query_params.get("username")
+        query = User.objects.get(username=username)
+
+        serializer = UserProfileSerializer(query, many=False)
+
+        return Response(serializer.data["profile"]) ##
+>>>>>>> 560127809aeb20c593b7ff67345ff1d03401070d
